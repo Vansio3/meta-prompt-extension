@@ -1,96 +1,189 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>MetaPrompt Options</title>
-  <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; padding: 15px 20px; min-width: 450px; background-color: #f9f9f9; color: #333; }
-    h1 { font-size: 1.4em; margin-bottom: 15px; color: #111; }
-    h2 { font-size: 1.1em; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
-    p { font-size: 0.95em; line-height: 1.4; margin-bottom: 10px; }
-    label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; }
-    input[type="text"], input[type="password"], textarea {
-        width: 95%;
-        padding: 10px;
-        margin-bottom: 5px; /* Reduced margin */
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1em;
-        box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-        font-family: inherit; /* Ensure textarea uses same font */
-    }
-    textarea { resize: vertical; min-height: 150px; }
-    input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-    }
-    .input-group { margin-bottom: 20px; } /* Group label, input, help text */
-    .help-text { font-size: 0.85em; color: #555; margin-top: 3px; }
-    .placeholder-info { font-weight: bold; color: #d9534f; } /* Highlight placeholder */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaPrompt Options</title>
 
-    button {
-        padding: 10px 18px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.95em;
-        transition: background-color 0.2s ease;
-        margin-right: 10px; /* Space buttons */
-    }
-    button:hover { background-color: #0056b3; }
-    button.secondary { background-color: #6c757d; }
-    button.secondary:hover { background-color: #5a6268; }
+    <!-- Bootstrap CSS (Dark Theme via data-bs-theme) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
-    #status { margin-top: 15px; font-weight: bold; height: 20px; }
-    .success { color: #28a745; }
-    .error { color: #dc3545; }
-    .warning { color: #e67e22; font-size: 0.85em; margin-top: -5px; margin-bottom: 15px;}
-    a { color: #007bff; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Google Fonts (Optional - for a slightly different feel) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles & Micro-animations -->
+    <style>
+        :root {
+            --bs-body-font-family: 'Inter', sans-serif, system-ui, -apple-system;
+             /* Slightly softer dark theme colors (adjust as desired) */
+            --bs-body-bg: #1a1a1a; /* Darker background */
+            --bs-body-color: #e0e0e0; /* Lighter text */
+            --bs-secondary-bg: #2c2c2c; /* Card/input background */
+            --bs-border-color: #444;
+            --bs-emphasis-color: #fff;
+            --bs-primary-rgb: 75, 135, 255; /* A slightly softer blue */
+            --bs-link-color: rgb(var(--bs-primary-rgb));
+            --bs-link-hover-color: rgba(var(--bs-primary-rgb), 0.8);
+        }
+
+        body {
+            min-width: 500px; /* Ensure enough space for layout */
+            transition: background-color 0.3s ease; /* Smooth theme transitions if ever needed */
+        }
+
+        .container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .form-control, .form-select {
+            background-color: var(--bs-secondary-bg);
+            color: var(--bs-body-color);
+            border-color: var(--bs-border-color);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: var(--bs-secondary-bg);
+            color: var(--bs-body-color);
+            border-color: rgba(var(--bs-primary-rgb), 0.7);
+            box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.3);
+        }
+
+        .form-control::placeholder {
+           color: #888;
+           opacity: 0.7;
+        }
+
+        .form-label {
+            font-weight: 500; /* Slightly bolder labels */
+            margin-bottom: 0.6rem; /* More space below label */
+        }
+
+         .form-text {
+            font-size: 0.85em;
+            color: #aaa; /* Lighter help text */
+        }
+
+        .btn {
+            transition: all 0.2s ease-out; /* Smooth button transitions */
+            padding: 0.5rem 1rem; /* Slightly larger buttons */
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px); /* Subtle lift on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+         .btn:active {
+            transform: translateY(0px); /* Press down effect */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+         }
+
+        .btn i { /* Align icons better in buttons */
+             margin-right: 0.4rem;
+             vertical-align: text-bottom;
+             line-height: 1;
+        }
+
+        .placeholder-code {
+            background-color: rgba(var(--bs-primary-rgb), 0.15);
+            color: rgba(var(--bs-primary-rgb), 0.9);
+            padding: 0.1em 0.4em;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            border: 1px solid rgba(var(--bs-primary-rgb), 0.3);
+        }
+
+        /* Status Message Animation */
+        #status {
+            min-height: 24px; /* Prevent layout jump */
+            margin-top: 1.5rem;
+            opacity: 0; /* Start hidden */
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #status.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #status.success { color: #4CAF50; } /* Green for success */
+        #status.error { color: #F44336; } /* Red for error */
+        #status.warning { color: #FF9800; } /* Orange for warning */
+
+        h1 i { /* Icon spacing for title */
+            margin-right: 0.6rem;
+            vertical-align: middle;
+        }
+    </style>
 </head>
-<body>
-  <h1>MetaPrompt Options</h1>
+<body data-bs-theme="dark">
 
-  <!-- API Key Section -->
-  <h2>API Configuration</h2>
-  <div class="input-group">
-    <label for="apiKey">Google AI API Key:</label>
-    <input type="password" id="apiKey" placeholder="Paste your API key here">
-    <p class="help-text">
-        Required to interact with the Google AI API. Get one from
-        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.
-        <span class="warning">Keep your API key confidential.</span>
-    </p>
-  </div>
+    <div class="container">
+        <h1 class="mb-4 border-bottom pb-3"><i class="bi bi-gear-fill"></i>MetaPrompt Options</h1>
 
-  <div class="input-group">
-    <label for="modelName">Gemini Model Name:</label>
-    <input type="text" id="modelName" placeholder="e.g., gemini-1.5-flash-latest">
-     <p class="help-text">
-        Specify the Gemini model to use (e.g., `gemini-1.5-flash-latest`, `gemini-1.5-pro-latest`).
-        Ensure the model is available for your API key.
-     </p>
-  </div>
+        <!-- API Configuration Card -->
+        <div class="card mb-4 bg-dark border-secondary shadow-sm">
+            <div class="card-header bg-opacity-10 border-bottom border-secondary">
+                <h2 class="h5 mb-0 py-1"><i class="bi bi-key-fill me-2"></i>API Configuration</h2>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="apiKey" class="form-label">Google AI API Key</label>
+                    <input type="password" class="form-control" id="apiKey" placeholder="Paste your Gemini API key here" aria-describedby="apiKeyHelp">
+                    <div id="apiKeyHelp" class="form-text">
+                        Required to interact with the Google AI API. Get one from
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="link-light link-offset-2 link-underline-opacity-50 link-underline-opacity-100-hover">Google AI Studio <i class="bi bi-box-arrow-up-right small ms-1"></i></a>. Keep it confidential.
+                    </div>
+                </div>
 
-  <!-- Meta Prompt Section -->
-  <h2>Prompt Engineering</h2>
-   <div class="input-group">
-    <label for="metaPrompt">Meta-Prompt Template:</label>
-    <textarea id="metaPrompt"></textarea>
-    <p class="help-text">
-        This is the instruction sent to the AI model, telling it how to enhance your selected text.
-        You MUST include the placeholder <code class="placeholder-info">{{USER_INPUT}}</code> exactly once; it will be replaced with the text you select on a webpage.
-    </p>
-    <button id="resetMetaPrompt" class="secondary">Reset to Default Meta-Prompt</button>
-  </div>
+                <div class="mb-3">
+                    <label for="modelName" class="form-label">Gemini Model Name</label>
+                    <input type="text" class="form-control" id="modelName" placeholder="e.g., gemini-2.0-flash" aria-describedby="modelNameHelp">
+                    <div id="modelNameHelp" class="form-text">
+                        Specify the model (e.g., `gemini-2.0-flash`, `gemini-1.5-flash-latest`, `gemini-1.5-pro-latest`). Ensure it's available for your key.
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Prompt Engineering Card -->
+         <div class="card mb-4 bg-dark border-secondary shadow-sm">
+            <div class="card-header bg-opacity-10 border-bottom border-secondary">
+                 <h2 class="h5 mb-0 py-1"><i class="bi bi-terminal-fill me-2"></i>Prompt Engineering</h2>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="metaPrompt" class="form-label">Meta-Prompt Template</label>
+                    <textarea class="form-control" id="metaPrompt" rows="12" aria-describedby="metaPromptHelp"></textarea>
+                    <div id="metaPromptHelp" class="form-text mt-2">
+                        This is the instruction sent to the AI, telling it how to enhance your selected text.
+                        You MUST include the placeholder <code class="placeholder-code">{{USER_INPUT}}</code> exactly once.
+                    </div>
+                </div>
+                <button type="button" id="resetMetaPrompt" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i>Reset to Default</button>
+            </div>
+        </div>
 
-  <button id="save">Save All Settings</button>
-  <div id="status"></div> <!-- Status message area -->
+        <!-- Action Buttons & Status -->
+        <div class="d-flex align-items-center">
+            <button type="button" id="save" class="btn btn-primary px-4 me-3"><i class="bi bi-save-fill"></i>Save Settings</button>
+            <div id="status" class="ms-auto fw-medium"></div> <!-- Status message area - moved for better alignment -->
+        </div>
 
-  <script src="options.js"></script>
+    </div><!-- /container -->
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Your Options Script -->
+    <script src="options.js"></script>
 </body>
 </html>

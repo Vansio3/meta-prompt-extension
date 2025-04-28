@@ -71,8 +71,8 @@ function saveOptions() {
   }
    // Optional: Check if placeholder appears more than once (could cause issues)
    if ((metaPrompt.match(/{{USER_INPUT}}/g) || []).length > 1) {
-       displayStatus('Warning: Placeholder {{USER_INPUT}} appears more than once. Using first instance.', 'warning');
-       // Allow saving but warn the user
+       // Use warning class for visual feedback, still saves
+       displayStatus('Warning: Placeholder {{USER_INPUT}} appears multiple times. Using first instance.', 'warning');
    }
 
   // --- Save to storage ---
@@ -99,21 +99,42 @@ function saveOptions() {
 function resetMetaPrompt() {
     metaPromptTextarea.value = DEFAULT_META_PROMPT;
     console.log("Meta-Prompt reset to default in textarea.");
-    // Optionally provide feedback, though changing the text is usually enough
-    // displayStatus('Meta-Prompt reset to default.', 'success');
+    // Provide visual feedback on successful reset
+    displayStatus('Meta-Prompt reset to default.', 'success');
 }
 
 
-// --- Display status messages ---
-function displayStatus(message, type = 'success') { // Default to success type
-    statusDiv.textContent = message;
-    statusDiv.className = type; // Apply 'success', 'error', or 'warning' class
+// --- Display status messages with Animation ---
+let statusTimeout; // Store timeout ID to clear if new status comes quickly
+function displayStatus(message, type = 'success') { // type can be 'success', 'error', 'warning'
+    clearTimeout(statusTimeout); // Clear previous timeout if any
 
-    // Clear status after a few seconds
-    setTimeout(() => {
-        statusDiv.textContent = '';
-        statusDiv.className = '';
-    }, 5000); // Increased duration slightly
+    // Set text content and base classes (for alignment/font) + specific type class (for color)
+    statusDiv.textContent = message;
+    statusDiv.className = `ms-auto fw-medium ${type}`; // Bootstrap alignment/font + custom color class
+
+    // Force a reflow. Reading a dimension property like offsetWidth forces the browser
+    // to recalculate layout, ensuring the transition will run when the class is added.
+    void statusDiv.offsetWidth;
+
+    // Add the 'visible' class to trigger the fade-in/slide-up animation defined in CSS
+    statusDiv.classList.add('visible');
+
+    // Set a timeout to remove the 'visible' class, triggering the fade-out/slide-down
+    statusTimeout = setTimeout(() => {
+        statusDiv.classList.remove('visible');
+
+        // Optional: Clear the text content *after* the fade-out animation completes.
+        // Add a small delay buffer greater than the CSS transition duration (0.3s).
+         setTimeout(() => {
+             // Check if another message hasn't rapidly replaced this one before clearing
+             if (!statusDiv.classList.contains('visible')) {
+                 statusDiv.textContent = '';
+                 statusDiv.className = 'ms-auto fw-medium'; // Reset classes completely
+             }
+         }, 350); // e.g., 350ms > 300ms transition
+
+    }, 4000); // Keep the message visible for 4 seconds before starting fade-out
 }
 
 // --- Event Listeners ---
@@ -121,12 +142,13 @@ document.addEventListener('DOMContentLoaded', restoreOptions);
 saveButton.addEventListener('click', saveOptions);
 resetMetaPromptButton.addEventListener('click', resetMetaPrompt);
 
-// Optional: Allow saving by pressing Enter in text input fields (not textarea)
+// Optional: Allow saving by pressing Enter in the text input fields (API Key, Model Name)
 [apiKeyInput, modelNameInput].forEach(input => {
     input.addEventListener('keypress', function(event) {
+        // Check if the pressed key is Enter
         if (event.key === 'Enter') {
-            event.preventDefault();
-            saveOptions(); // Trigger save on Enter
+            event.preventDefault(); // Prevent default behavior (like form submission if applicable)
+            saveOptions(); // Trigger the save function
         }
     });
 });
