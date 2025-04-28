@@ -2,102 +2,106 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Enhance selected text into professionally engineered AI prompts directly in your browser using the Google Gemini API.**
+**A Chrome extension to enhance selected text into structured AI prompts using the Google AI API.**
 
-MetaPrompt allows you to quickly transform your rough ideas or simple instructions into detailed, effective prompts suitable for large language models (LLMs) or other AI systems. Simply select text on a webpage, right-click, and choose "Enhance Prompt".
+MetaPrompt helps users refine draft prompts or basic text into more detailed and structured prompts suitable for large language models (LLMs), such as Google's Gemini series. It integrates with the browser's context menu to process selected text via the Google AI API.
 
----
+## Overview
+
+Effective prompts often require more detail and structure than initial ideas provide. MetaPrompt assists with this by:
+
+1.  Allowing users to select text within editable areas on a webpage (input fields, textareas, contenteditable elements).
+2.  Providing a context menu option ("Enhance Prompt").
+3.  Sending the selected text, along with a user-defined instruction template (the "meta-prompt"), to a specified Google AI Gemini model.
+4.  Replacing the original selection with the AI-generated enhanced prompt, or copying it to the clipboard if direct replacement fails.
 
 ## Features
 
-*   **Context Menu Integration:** Adds an "Enhance Prompt" option to the right-click menu when text is selected.
-*   **AI-Powered Enhancement:** Sends your selected text, guided by a customizable "meta-prompt", to the Google AI Gemini API for rewriting.
-*   **In-Place Replacement:** Automatically replaces the selected text within `<input>`, `<textarea>`, and most `contenteditable` elements with the AI-generated enhanced prompt.
-*   **Clipboard Fallback:** If direct replacement isn't possible (e.g., selected text in a non-editable paragraph), the enhanced prompt is automatically copied to your clipboard with a notification.
-*   **Configurable:**
-    *   Requires your personal Google AI API Key.
-    *   Set your preferred Gemini model (defaults to `gemini-2.0-flash`).
-    *   Customize the "meta-prompt" template that instructs the AI on *how* to enhance your text.
-*   **Manifest V3 Compliant:** Built using the latest Chrome extension standards.
+*   **Context Menu Integration:** Enhance prompts via the right-click menu without leaving the current page.
+*   **Google AI API Usage:** Utilizes the Google Generative AI API.
+*   **Configurable Model:** Select the desired Gemini model through the options page (default: `gemini-2.0-flash`).
+*   **Customizable Meta-Prompt:** Define the instructions sent to the AI for processing selected text using the `{{USER_INPUT}}` placeholder.
+*   **Preset Management:** Save, load, and delete multiple meta-prompt templates using browser `localStorage`.
+*   **Text Replacement:** Attempts to replace text directly in standard `<input>`, `<textarea>`, and most `<div contenteditable="true">` elements.
+*   **Clipboard Fallback:** Copies the enhanced prompt to the clipboard if direct replacement is not possible.
+*   **API Key Storage:** Uses `chrome.storage.sync` to store the user's Google AI API key.
+*   **Dark Theme Options Page:** Provides an options page with a dark theme for configuration.
 
 ## How it Works
 
-1.  You select some text on a webpage (e.g., inside a ChatGPT input box, a forum post editor, etc.).
-2.  You right-click on the selection and choose "Enhance Prompt".
-3.  The extension retrieves your configured API key, Gemini model name, and meta-prompt template from its settings.
-4.  It inserts your selected text into the meta-prompt template (replacing the `{{USER_INPUT}}` placeholder).
-5.  This complete instruction (the meta-prompt + your text) is sent to the specified Google AI Gemini model via its API.
-6.  The AI model processes the request and returns the enhanced prompt text.
-7.  The extension attempts to replace the originally selected text on the page with the enhanced version.
-8.  If replacement fails, it copies the enhanced text to the clipboard and alerts you.
+1.  **Select Text:** Highlight text within an editable field on a webpage.
+2.  **Right-Click:** Open the context menu.
+3.  **Select Option:** Click "Enhance Prompt".
+4.  **Process & Replace/Copy:** The extension sends a request to the Google AI API. The selected text is then replaced with the response, or the response is copied to the clipboard.
 
-## Requirements
+## Installation
 
-*   Google Chrome Browser
-*   A valid Google AI API Key. You can obtain one for free from [Google AI Studio](https://aistudio.google.com/app/apikey).
+**Option 1: From Chrome Web Store (Link TBD)**
 
-## Installation (for Local Development/Testing)
+> A link will be added here upon publication to the Chrome Web Store.
 
-Since this extension is not yet on the Chrome Web Store, you need to load it manually:
+**Option 2: From Source**
 
-1.  **Clone or Download:**
-    *   Clone this repository: `git clone https://github.com/Vansio3/meta-prompt-extension.git`
-    *   OR Download the ZIP file from GitHub and extract it.
-2.  **Open Chrome Extensions:** Open Google Chrome, navigate to `chrome://extensions/`.
-3.  **Enable Developer Mode:** Ensure the "Developer mode" toggle (usually in the top-right corner) is switched ON.
-4.  **Load Unpacked:** Click the "Load unpacked" button.
-5.  **Select Folder:** Navigate to the directory where you cloned or extracted the extension files (the folder containing `manifest.json`) and select it.
-6.  The "MetaPrompt" extension should now appear in your list of extensions.
+1.  Clone or download the source code from this repository:
+    ```bash
+    git clone https://github.com/Vansio3/meta-prompt-extension.git
+    ```
+    (If downloaded as ZIP, extract the files).
+2.  Open Google Chrome and navigate to `chrome://extensions/`.
+3.  Enable "Developer mode" (top-right toggle).
+4.  Click "Load unpacked".
+5.  Select the directory containing the extension's files (the folder with `manifest.json`).
+6.  MetaPrompt should appear in the extensions list.
 
 ## Configuration
 
-Before using the extension, you **must** configure your API key:
+Before first use, configure the extension:
 
-1.  **Open Options:**
-    *   Click the MetaPrompt extension icon in your Chrome toolbar.
-    *   OR, go to `chrome://extensions/`, find MetaPrompt, and click "Details", then "Extension options".
-2.  **Enter API Key:** Paste your Google AI API Key into the designated field.
-3.  **Configure Model (Optional):**
-    *   The default model is `gemini-2.0-flash`.
-    *   You can change this to another Gemini model available to your API key (e.g., `gemini-2.5-flash-preview-04-17`, `gemini-2.5-pro-preview-03-25`). Ensure the model name is correct.
-4.  **Customize Meta-Prompt (Optional):**
-    *   You can edit the template used to instruct the AI.
-    *   **Crucially, your custom template MUST include the placeholder `{{USER_INPUT}}` exactly once.** This is where your selected text will be inserted.
-    *   You can reset to the recommended default using the "Reset to Default Meta-Prompt" button.
-5.  **Save:** Click the "Save All Settings" button.
+1.  **Open Options:** Click the MetaPrompt icon in the Chrome toolbar, or go to `chrome://extensions/`, find MetaPrompt, click "Details" -> "Extension options".
+2.  **Enter API Key:** Obtain an API key from [Google AI Studio](https://aistudio.google.com/app/apikey) if you don't have one. Paste it into the "Google AI API Key" field.
+3.  **Set Model Name (Optional):** Change the default model (`gemini-2.0-flash`) if needed. Ensure the chosen model is compatible with your API key.
+4.  **Customize Meta-Prompt (Optional):** Modify the default "Meta-Prompt Template". This template instructs the AI. Ensure it contains the `{{USER_INPUT}}` placeholder exactly once.
+5.  **Save Settings:** Click "Save Active Settings". The extension will use these settings (API Key, Model, Active Meta-Prompt) for enhancement requests.
 
 ## Usage
 
-1.  Go to any webpage with an input field, textarea, or editable content area.
-2.  Type a basic idea or instruction (e.g., `picture of a red cat on a blue roof`).
-3.  Select the text you just typed.
-4.  Right-click on the selected text.
-5.  Choose "Enhance Prompt" from the context menu.
-6.  Wait a moment for the API call to complete.
-7.  The selected text should be replaced by the AI-enhanced version. If not, you should receive an alert indicating it was copied to your clipboard.
+1.  Navigate to a webpage with an editable text area.
+2.  Type your initial text (e.g., "describe a cat").
+3.  Select the text.
+4.  Right-click the selection.
+5.  Choose "Enhance Prompt".
+6.  The selected text should be replaced by the AI-generated prompt. If replacement fails, an alert will notify you that the text has been copied to the clipboard.
 
-## Important Notes & Caveats
+## Preset Management
 
-*   **API Key Security:** Your API key is stored using `chrome.storage.sync`. While reasonably secure for this purpose, be mindful of its sensitivity. **Never commit your API key directly into the code or share it.**
-*   **Model Availability:** The default model (`gemini-2.0-flash`) or any custom model you enter must be accessible via the Generative Language API with your specific API key and in your region. If you get "Model not found" errors, try a different model name like `gemini-2.5-flash-preview-04-17`.
-*   **Rich Text Editors:** Compatibility with complex WYSIWYG / Rich Text Editors varies. The extension tries to handle standard inputs, textareas, and `contenteditable` elements, but some editors might interfere. The clipboard fallback helps in these cases.
-*   **Meta-Prompt Placeholder:** The `{{USER_INPUT}}` placeholder in the meta-prompt template is mandatory for the extension to function correctly.
-*   **API Costs:** While Google AI currently has generous free tiers, be aware of potential costs associated with API usage if you exceed free limits.
+The options page allows managing meta-prompt templates:
 
-## Troubleshooting
+*   **Save Preset:** Modify the "Active Meta-Prompt Template" textarea, provide a name in the "Save Current Template As Preset" field, and click "Save Preset". Saves the template to `localStorage`.
+*   **Load Preset:** Select a saved preset from the dropdown and click "Load". This populates the "Active Meta-Prompt Template" textarea. **Note:** You must click "Save Active Settings" afterwards to make the loaded template active for the extension.
+*   **Delete Preset:** Select a preset from the dropdown, click "Delete", and confirm. Removes the preset from `localStorage`.
+*   **Reset Template:** Click "Reset Current Template to Default" to revert the textarea content to the default template.
 
-*   **Doesn't Work / Error Notification:**
-    *   Ensure you have saved a valid API key in the options.
-    *   Check the configured Model Name is correct and available for your key.
-    *   Check the Meta-Prompt template contains `{{USER_INPUT}}`.
-    *   Open the background console: Go to `chrome://extensions/`, find MetaPrompt, click the "Service worker" link, and check for errors in the console tab.
-    *   Open the console on the webpage where you tried to use it (Press F12 or Ctrl+Shift+J / Cmd+Opt+J) and look for errors prefixed with `MetaPrompt Injection:`.
-*   **Text Not Replaced:** The clipboard fallback should activate with an alert. This usually means the focused element wasn't a standard input/textarea or contenteditable, or the site prevents programmatic changes.
+## Technology Stack
+
+*   JavaScript (ES6+)
+*   HTML5
+*   CSS3
+*   Chrome Extension APIs (Manifest V3: `contextMenus`, `storage`, `scripting`, `notifications`, `clipboardWrite`)
+*   Google Generative AI API
+*   Browser `localStorage`
+
+## Development
+
+1.  Clone the repository.
+2.  Load the extension into Chrome using "Load unpacked" as described in Installation.
+3.  Make code changes.
+4.  Reload the extension via the refresh icon on the `chrome://extensions/` page.
+5.  Use the browser's developer tools (Service Worker console, page console) for debugging.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to open an issue or submit a pull request.
+Contributions, bug reports, and feature suggestions are welcome. Please check the [issues page](https://github.com/Vansio3/meta-prompt-extension/issues). Submit pull requests against the `main` branch.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details (assuming you add an MIT license file).
+This project is licensed under the MIT License. See the LICENSE file (if available) or refer to the [MIT license text](https://opensource.org/licenses/MIT).
