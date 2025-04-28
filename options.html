@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MetaPrompt Options</title>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; padding: 15px 20px; min-width: 450px; background-color: #f9f9f9; color: #333; }
+    h1 { font-size: 1.4em; margin-bottom: 15px; color: #111; }
+    h2 { font-size: 1.1em; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+    p { font-size: 0.95em; line-height: 1.4; margin-bottom: 10px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; }
+    input[type="text"], input[type="password"], textarea {
+        width: 95%;
+        padding: 10px;
+        margin-bottom: 5px; /* Reduced margin */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1em;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        font-family: inherit; /* Ensure textarea uses same font */
+    }
+    textarea { resize: vertical; min-height: 150px; }
+    input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    .input-group { margin-bottom: 20px; } /* Group label, input, help text */
+    .help-text { font-size: 0.85em; color: #555; margin-top: 3px; }
+    .placeholder-info { font-weight: bold; color: #d9534f; } /* Highlight placeholder */
+
+    button {
+        padding: 10px 18px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95em;
+        transition: background-color 0.2s ease;
+        margin-right: 10px; /* Space buttons */
+    }
+    button:hover { background-color: #0056b3; }
+    button.secondary { background-color: #6c757d; }
+    button.secondary:hover { background-color: #5a6268; }
+
+    #status { margin-top: 15px; font-weight: bold; height: 20px; }
+    .success { color: #28a745; }
+    .error { color: #dc3545; }
+    .warning { color: #e67e22; font-size: 0.85em; margin-top: -5px; margin-bottom: 15px;}
+    a { color: #007bff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>MetaPrompt Options</h1>
+
+  <!-- API Key Section -->
+  <h2>API Configuration</h2>
+  <div class="input-group">
+    <label for="apiKey">Google AI API Key:</label>
+    <input type="password" id="apiKey" placeholder="Paste your API key here">
+    <p class="help-text">
+        Required to interact with the Google AI API. Get one from
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>.
+        <span class="warning">Keep your API key confidential.</span>
+    </p>
+  </div>
+
+  <div class="input-group">
+    <label for="modelName">Gemini Model Name:</label>
+    <input type="text" id="modelName" placeholder="e.g., gemini-1.5-flash-latest">
+     <p class="help-text">
+        Specify the Gemini model to use (e.g., `gemini-1.5-flash-latest`, `gemini-1.5-pro-latest`).
+        Ensure the model is available for your API key.
+     </p>
+  </div>
+
+  <!-- Meta Prompt Section -->
+  <h2>Prompt Engineering</h2>
+   <div class="input-group">
+    <label for="metaPrompt">Meta-Prompt Template:</label>
+    <textarea id="metaPrompt"></textarea>
+    <p class="help-text">
+        This is the instruction sent to the AI model, telling it how to enhance your selected text.
+        You MUST include the placeholder <code class="placeholder-info">{{USER_INPUT}}</code> exactly once; it will be replaced with the text you select on a webpage.
+    </p>
+    <button id="resetMetaPrompt" class="secondary">Reset to Default Meta-Prompt</button>
+  </div>
+
+
+  <button id="save">Save All Settings</button>
+  <div id="status"></div> <!-- Status message area -->
+
+  <script src="options.js"></script>
+</body>
+</html>
