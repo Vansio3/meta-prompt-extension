@@ -13,10 +13,11 @@
             --text-secondary: #a8a8b3;   /* Secondary/help text */
             --text-placeholder: #7a7a85;
             --accent-primary: #4dabf7;   /* Accent color (e.g., buttons, focus) */
-            --accent-secondary: #8f96a3; /* Secondary button / borders */
+            --accent-secondary: #5b6370; /* Secondary button / borders - slightly adjusted */
             --success-color: #50fa7b;
             --warning-color: #f1fa8c;
-            --error-color: #ff5555;
+            --error-color: #ff5555;      /* Adjusted error for button contrast */
+            --error-button-text: #1a1d21; /* Ensure contrast on error button */
             --border-radius-sm: 4px;
             --border-radius-md: 6px;
             --transition-fast: 0.15s ease-out;
@@ -32,7 +33,7 @@
         }
 
         html {
-            color-scheme: dark; /* Hint to browser for native UI elements */
+            color-scheme: dark;
         }
 
         body {
@@ -40,12 +41,12 @@
             background-color: var(--bg-primary);
             color: var(--text-primary);
             padding: 25px 30px;
-            min-width: 500px; /* Increased min-width */
+            min-width: 500px;
             line-height: 1.6;
-            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-x: hidden;
         }
 
-        main { /* Wrap content for potentially better structure */
+        main {
             max-width: 700px;
             margin: 0 auto;
         }
@@ -83,7 +84,8 @@
 
         input[type="text"],
         input[type="password"],
-        textarea {
+        textarea,
+        select { /* Added select here */
             width: 100%;
             padding: 12px 15px;
             background-color: var(--bg-secondary);
@@ -103,25 +105,47 @@
 
         input[type="text"]:hover,
         input[type="password"]:hover,
-        textarea:hover {
+        textarea:hover,
+        select:hover { /* Added select */
             border-color: var(--accent-primary);
         }
 
         input[type="text"]:focus-visible,
         input[type="password"]:focus-visible,
-        textarea:focus-visible {
+        textarea:focus-visible,
+        select:focus-visible { /* Added select */
             outline: none;
             border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.3); /* Focus ring using accent */
-            background-color: var(--bg-primary); /* Slightly change bg on focus */
+            box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.3);
+            background-color: var(--bg-primary);
         }
 
         textarea {
             resize: vertical;
             min-height: 180px;
-            font-family: 'Menlo', 'Consolas', 'Courier New', monospace; /* Monospace for code */
+            font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
             line-height: 1.5;
         }
+
+         select {
+             padding: 11px 12px; /* Slightly adjusted padding for select */
+             background-color: var(--bg-secondary); /* Consistent background */
+             cursor: pointer;
+             appearance: none; /* Allows custom arrow if desired */
+             background-image: url('data:image/svg+xml;utf8,<svg fill="%23a8a8b3" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Basic dropdown arrow */
+             background-repeat: no-repeat;
+             background-position: right 10px center;
+             background-size: 1.2em;
+         }
+         select option {
+             background-color: var(--bg-secondary);
+             color: var(--text-primary);
+         }
+         select option:disabled {
+             color: var(--text-secondary);
+             font-style: italic;
+         }
+
 
         .help-text {
             font-size: 0.88em;
@@ -137,7 +161,7 @@
         }
 
         .help-text a:hover {
-            color: #8ec9f9; /* Lighter accent on hover */
+            color: #8ec9f9;
             text-decoration: underline;
         }
 
@@ -147,15 +171,16 @@
             border-radius: var(--border-radius-sm);
             font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
             font-size: 0.9em;
-            color: var(--warning-color); /* Use warning color to highlight */
+            color: var(--warning-color);
             border: 1px solid var(--bg-tertiary);
         }
 
-        .button-group {
+        .button-group, .main-button-group { /* Combined styles */
             margin-top: 30px;
             display: flex;
-            gap: 15px; /* Space between buttons */
+            gap: 15px;
             align-items: center;
+            flex-wrap: wrap; /* Allow wrapping */
         }
 
         button {
@@ -167,23 +192,30 @@
             font-weight: 500;
             transition: background-color var(--transition-normal), transform var(--transition-fast), box-shadow var(--transition-normal);
             box-shadow: var(--shadow-sm);
-            display: inline-flex; /* Align icon/text if needed later */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 120px; /* Ensure minimum button width */
+            min-width: 120px;
         }
+        button:disabled { /* Style for disabled buttons */
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: none;
+            transform: none;
+        }
+
 
         /* Primary Button Style */
         button#save {
             background-color: var(--accent-primary);
-            color: var(--bg-primary); /* Dark text on light button */
+            color: var(--bg-primary);
         }
-        button#save:hover {
+        button#save:not(:disabled):hover {
             background-color: #6ebef8;
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
-        button#save:active {
+        button#save:not(:disabled):active {
             transform: translateY(0);
             background-color: #3a9ae0;
             box-shadow: var(--shadow-sm);
@@ -195,30 +227,48 @@
             color: var(--text-secondary);
             border: 1px solid var(--accent-secondary);
         }
-        button.secondary:hover {
+        button.secondary:not(:disabled):hover {
             background-color: var(--accent-secondary);
             color: var(--text-primary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
-        button.secondary:active {
+        button.secondary:not(:disabled):active {
             transform: translateY(0);
             background-color: var(--bg-tertiary);
             box-shadow: var(--shadow-sm);
         }
 
+        /* Delete Button Specific Style */
+        button#deletePresetBtn {
+            background-color: var(--error-color);
+            color: var(--error-button-text); /* Ensure high contrast */
+            border: none; /* Remove border for error button */
+        }
+        button#deletePresetBtn:not(:disabled):hover {
+             background-color: #ff7777; /* Lighter red on hover */
+             transform: translateY(-2px);
+             box-shadow: var(--shadow-md);
+             color: var(--error-button-text);
+        }
+         button#deletePresetBtn:not(:disabled):active {
+             background-color: #cc4444; /* Darker red on active */
+             transform: translateY(0);
+             box-shadow: var(--shadow-sm);
+         }
+
         /* Status Message Area */
         #status {
-            margin-top: 20px;
+            margin-top: 25px; /* Adjusted margin */
             padding: 10px 15px;
             border-radius: var(--border-radius-md);
             font-weight: 500;
             font-size: 0.95em;
-            opacity: 0; /* Start hidden */
-            transform: translateY(10px); /* Start slightly lower */
+            opacity: 0;
+            transform: translateY(10px);
             transition: opacity var(--transition-normal), transform var(--transition-normal);
             text-align: center;
-            min-height: 42px; /* Ensure consistent height */
+            min-height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -226,24 +276,76 @@
 
         #status.visible {
             opacity: 1;
-            transform: translateY(0); /* Animate into view */
+            transform: translateY(0);
         }
 
         #status.success {
-            background-color: rgba(80, 250, 123, 0.1); /* Subtle success bg */
+            background-color: rgba(80, 250, 123, 0.1);
             color: var(--success-color);
             border: 1px solid rgba(80, 250, 123, 0.3);
         }
         #status.warning {
-            background-color: rgba(241, 250, 140, 0.1); /* Subtle warning bg */
+            background-color: rgba(241, 250, 140, 0.1);
             color: var(--warning-color);
             border: 1px solid rgba(241, 250, 140, 0.3);
         }
         #status.error {
-            background-color: rgba(255, 85, 85, 0.1); /* Subtle error bg */
+            background-color: rgba(255, 85, 85, 0.1);
             color: var(--error-color);
             border: 1px solid rgba(255, 85, 85, 0.3);
         }
+
+         /* Preset Management Specific Styles */
+         .preset-management {
+             margin-top: 30px; /* Increased space */
+             padding: 25px; /* Increased padding */
+             background-color: var(--bg-secondary);
+             border-radius: var(--border-radius-md);
+             border: 1px solid var(--bg-tertiary);
+         }
+
+         .preset-management h3 {
+             font-size: 1.2em; /* Slightly larger heading */
+             font-weight: 500;
+             margin-bottom: 20px;
+             color: var(--text-primary); /* Primary color for subsection heading */
+             border-bottom: 1px solid var(--bg-tertiary);
+             padding-bottom: 8px;
+         }
+
+         .preset-row {
+             display: flex;
+             flex-wrap: wrap; /* Allow wrapping on smaller screens */
+             gap: 15px; /* Gap between items in a row */
+             align-items: flex-end;
+             margin-bottom: 20px;
+         }
+         .preset-row > div { /* Target direct children divs */
+             flex: 1 1 auto; /* Allow flex items to grow and shrink */
+             min-width: 150px; /* Minimum width before wrapping */
+         }
+          .preset-row > div:last-child { /* Target action buttons container */
+              flex-grow: 0; /* Don't let button container grow excessively */
+              flex-basis: auto;
+          }
+
+         .preset-row label {
+              margin-bottom: 5px;
+              font-size: 0.9em;
+         }
+
+         .preset-actions {
+             display: flex;
+             gap: 10px;
+             flex-wrap: wrap;
+         }
+         .preset-actions button {
+             min-width: 100px;
+             padding: 8px 15px;
+             font-size: 0.9em;
+             margin-top: 5px; /* Align buttons better when wrapped */
+         }
+
     </style>
 </head>
 <body>
@@ -261,12 +363,11 @@
                 Your key is stored securely using Chrome's storage sync.
             </p>
         </div>
-
         <div class="input-group">
             <label for="modelName">Gemini Model Name:</label>
             <input type="text" id="modelName" placeholder="e.g., gemini-2.0-flash">
             <p class="help-text">
-                Specify the Gemini model (e.g., <code>gemini-2.5-flash-preview-04-17</code>, <code>gemini-2.0-flash</code>).
+                Specify the Gemini model (e.g., <code>gemini-2.0-flash</code>, <code>gemini-2.5-flash-preview-04-17</code>).
                 Ensure the model is available for your API key and region.
             </p>
         </div>
@@ -274,17 +375,48 @@
         <!-- Prompt Engineering Section -->
         <h2>Prompt Engineering</h2>
         <div class="input-group">
-            <label for="metaPrompt">Meta-Prompt Template:</label>
-            <textarea id="metaPrompt"></textarea>
+            <label for="metaPrompt">Active Meta-Prompt Template:</label>
+            <textarea id="metaPrompt" placeholder="Enter the prompt template the extension will use..."></textarea>
             <p class="help-text">
                 This instruction template is sent to the AI model.
                 It MUST include the placeholder <code class="placeholder-info">{{USER_INPUT}}</code> exactly once, which will be replaced by your selected text.
             </p>
+            <button id="resetMetaPrompt" class="secondary" style="margin-top: 15px;">Reset Current Template to Default</button>
         </div>
 
-        <div class="button-group">
-            <button id="save">Save Settings</button>
-            <button id="resetMetaPrompt" class="secondary">Reset Template</button>
+        <!-- Preset Management Section -->
+        <div class="preset-management">
+            <h3>Manage Meta-Prompt Presets</h3>
+
+            <div class="preset-row">
+                <div>
+                    <label for="presetList">Load/Delete Saved Preset:</label>
+                    <select id="presetList">
+                        <option value="" disabled selected>-- Select a preset --</option>
+                        <!-- Presets loaded by JS -->
+                    </select>
+                </div>
+                <div class="preset-actions">
+                    <button id="loadPresetBtn" class="secondary" disabled>Load</button>
+                    <button id="deletePresetBtn" disabled>Delete</button> <!-- Specific style applied via ID -->
+                </div>
+            </div>
+
+            <div class="preset-row">
+                 <div>
+                    <label for="presetNameInput">Save Current Template As Preset:</label>
+                    <input type="text" id="presetNameInput" placeholder="Enter new or existing preset name">
+                 </div>
+                 <div class="preset-actions">
+                    <button id="savePresetBtn" class="secondary">Save Preset</button>
+                 </div>
+            </div>
+        </div>
+        <!-- End Preset Management Section -->
+
+
+        <div class="main-button-group"> <!-- Main action button -->
+            <button id="save">Save Active Settings</button>
         </div>
 
         <div id="status"></div> <!-- Status message area -->
