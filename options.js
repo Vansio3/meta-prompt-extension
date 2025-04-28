@@ -7,7 +7,6 @@ const resetMetaPromptButton = document.getElementById('resetMetaPrompt');
 const statusDiv = document.getElementById('status');
 
 // --- Default Values ---
-// Consistent defaults also needed in background.js
 const DEFAULT_MODEL_NAME = "gemini-2.0-flash"; // Default model
 const DEFAULT_META_PROMPT = `You are an expert AI prompt engineer tasked with refining user input into a professional-grade prompt.
 Analyze the user's text below and rewrite it to be clear, detailed, specific, and optimally structured for an AI model (LLM, image generator, etc., infer based on context). Retain the core intent but enhance it significantly.
@@ -17,79 +16,83 @@ Constraint: Your response MUST contain ONLY the final, enhanced prompt text, sui
 User's Input Text:
 "{{USER_INPUT}}"
 
-Enhanced Prompt:`; // IMPORTANT: {{USER_INPUT}} placeholder
+Enhanced Prompt:`;
+
+// --- Variable to manage status timeout ---
+let statusTimeoutId = null;
 
 // --- Restore saved options on load ---
 function restoreOptions() {
-  // Get all saved settings at once
   chrome.storage.sync.get(['apiKey', 'modelName', 'metaPrompt'], (data) => {
     if (chrome.runtime.lastError) {
-        console.error("Error retrieving settings:", chrome.runtime.lastError);
-        displayStatus('Error loading settings.', 'error');
-        // Still try to set defaults if loading failed
-        modelNameInput.value = DEFAULT_MODEL_NAME;
-        metaPromptTextarea.value = DEFAULT_META_PROMPT;
-        return;
+      console.error("Error retrieving settings:", chrome.runtime.lastError);
+      displayStatus('Error loading settings.', 'error');
+      // Set defaults if loading failed
+      modelNameInput.value = DEFAULT_MODEL_NAME;
+      metaPromptTextarea.value = DEFAULT_META_PROMPT;
+      return;
     }
-
-    // Set values from storage or use defaults if not found
     apiKeyInput.value = data.apiKey || '';
     modelNameInput.value = data.modelName || DEFAULT_MODEL_NAME;
     metaPromptTextarea.value = data.metaPrompt || DEFAULT_META_PROMPT;
-
-    console.log("Settings restored from storage or defaults applied.");
+    console.log("Settings restored or defaults applied.");
   });
 }
 
 // --- Save options ---
 function saveOptions() {
+  // Clear any existing status messages immediately on save attempt
+  clearStatus();
+
   const apiKey = apiKeyInput.value.trim();
-  const modelName = modelNameInput.value.trim() || DEFAULT_MODEL_NAME; // Fallback to default if empty
-  const metaPrompt = metaPromptTextarea.value.trim(); // Don't fallback metaPrompt, validate instead
+  const modelName = modelNameInput.value.trim() || DEFAULT_MODEL_NAME;
+  const metaPrompt = metaPromptTextarea.value.trim();
 
   // --- Validations ---
   if (!apiKey) {
     displayStatus('Error: API Key cannot be empty.', 'error');
-    apiKeyInput.focus(); // Focus the problematic field
-    return;
+    apiKeyInput.focus(); return;
   }
-   if (!modelName) { // Should not happen due to fallback, but good practice
+  if (!modelName) {
     displayStatus('Error: Model Name cannot be empty.', 'error');
-    modelNameInput.focus();
-    return;
+    modelNameInput.focus(); return;
   }
   if (!metaPrompt) {
     displayStatus('Error: Meta-Prompt template cannot be empty.', 'error');
-    metaPromptTextarea.focus();
-    return;
+    metaPromptTextarea.focus(); return;
   }
-  // Crucial validation: Check for the placeholder
   if (!metaPrompt.includes('{{USER_INPUT}}')) {
-      displayStatus('Error: Meta-Prompt MUST contain the placeholder {{USER_INPUT}}.', 'error');
-      metaPromptTextarea.focus();
-      return;
+      displayStatus('Error: Meta-Prompt MUST include the placeholder {{USER_INPUT}}.', 'error');
+      metaPromptTextarea.focus(); return;
   }
-   // Optional: Check if placeholder appears more than once (could cause issues)
-   if ((metaPrompt.match(/{{USER_INPUT}}/g) || []).length > 1) {
-       // Use warning class for visual feedback, still saves
-       displayStatus('Warning: Placeholder {{USER_INPUT}} appears multiple times. Using first instance.', 'warning');
+  if ((metaPrompt.match(/{{USER_INPUT}}/g) || []).length > 1) {
+       // Show warning but still allow saving
+       displayStatus('Warning: Placeholder {{USER_INPUT}} appears more than once. Using first instance.', 'warning', false); // Don't auto-clear warning immediately
+       // Continue to save...
    }
 
   // --- Save to storage ---
   chrome.storage.sync.set(
-    {
-      apiKey: apiKey,
-      modelName: modelName,
-      metaPrompt: metaPrompt
-    },
+    { apiKey: apiKey, modelName: modelName, metaPrompt: metaPrompt },
     () => {
       if (chrome.runtime.lastError) {
           console.error("Error saving settings:", chrome.runtime.lastError);
-          displayStatus(`Error saving settings: ${chrome.runtime.lastError.message}`, 'error');
+          // Use existing warning if present, otherwise show error
+          if (!statusDiv.classList.contains('warning')) {
+              displayStatus(`Error saving settings: ${chrome.runtime.lastError.message}`, 'error');
+          }
       } else {
           console.log("Settings saved successfully.");
-          // Use the type parameter in displayStatus for visual feedback
-          displayStatus('Settings saved successfully!', 'success');
+          // Use existing warning if present, otherwise show success
+          if (!statusDiv.classList.contains('warning')) {
+              displayStatus('Settings saved successfully!', 'success');
+          } else {
+              // Append success message to warning if needed, or just let warning stay
+              statusDiv.textContent += ' Settings Saved!';
+              // Re-set timeout for the combined/warning message
+              clearTimeout(statusTimeoutId); // Clear previous timeout
+              statusTimeoutId = setTimeout(clearStatus, 6000); // Longer timeout for warning+save
+          }
       }
     }
   );
@@ -99,56 +102,70 @@ function saveOptions() {
 function resetMetaPrompt() {
     metaPromptTextarea.value = DEFAULT_META_PROMPT;
     console.log("Meta-Prompt reset to default in textarea.");
-    // Provide visual feedback on successful reset
-    displayStatus('Meta-Prompt reset to default.', 'success');
+    // Optional: Indicate reset success visually
+    displayStatus('Meta-Prompt template reset to default.', 'success');
+    metaPromptTextarea.focus(); // Focus textarea after reset
 }
 
+// --- Display status messages with animation ---
+function displayStatus(message, type = 'success', autoClear = true, duration = 4000) {
+    // Clear previous timeout if a new message comes in
+    clearTimeout(statusTimeoutId);
+    statusTimeoutId = null; // Reset timeout ID
 
-// --- Display status messages with Animation ---
-let statusTimeout; // Store timeout ID to clear if new status comes quickly
-function displayStatus(message, type = 'success') { // type can be 'success', 'error', 'warning'
-    clearTimeout(statusTimeout); // Clear previous timeout if any
-
-    // Set text content and base classes (for alignment/font) + specific type class (for color)
     statusDiv.textContent = message;
-    statusDiv.className = `ms-auto fw-medium ${type}`; // Bootstrap alignment/font + custom color class
+    // Reset classes first, then add the correct type and visible class
+    statusDiv.className = 'status'; // Base class
+    // Use requestAnimationFrame to ensure the class changes are applied after reset
+    requestAnimationFrame(() => {
+        statusDiv.classList.add(type);    // Add 'success', 'error', or 'warning'
+        statusDiv.classList.add('visible'); // Trigger fade-in animation
+    });
 
-    // Force a reflow. Reading a dimension property like offsetWidth forces the browser
-    // to recalculate layout, ensuring the transition will run when the class is added.
-    void statusDiv.offsetWidth;
-
-    // Add the 'visible' class to trigger the fade-in/slide-up animation defined in CSS
-    statusDiv.classList.add('visible');
-
-    // Set a timeout to remove the 'visible' class, triggering the fade-out/slide-down
-    statusTimeout = setTimeout(() => {
-        statusDiv.classList.remove('visible');
-
-        // Optional: Clear the text content *after* the fade-out animation completes.
-        // Add a small delay buffer greater than the CSS transition duration (0.3s).
-         setTimeout(() => {
-             // Check if another message hasn't rapidly replaced this one before clearing
-             if (!statusDiv.classList.contains('visible')) {
-                 statusDiv.textContent = '';
-                 statusDiv.className = 'ms-auto fw-medium'; // Reset classes completely
-             }
-         }, 350); // e.g., 350ms > 300ms transition
-
-    }, 4000); // Keep the message visible for 4 seconds before starting fade-out
+    // Set timeout to clear the message if autoClear is true
+    if (autoClear) {
+        statusTimeoutId = setTimeout(clearStatus, duration);
+    }
 }
+
+// --- Clear status message with animation ---
+function clearStatus() {
+    clearTimeout(statusTimeoutId); // Prevent multiple timeouts
+    statusTimeoutId = null;
+    statusDiv.classList.remove('visible'); // Trigger fade-out animation
+
+    // Optional: Clear text content after animation (match transition duration in CSS)
+    // Set a timeout slightly longer than the CSS transition to clear text
+    setTimeout(() => {
+         if (!statusDiv.classList.contains('visible')) { // Only clear if still hidden
+             statusDiv.textContent = '';
+             statusDiv.className = 'status'; // Reset classes fully
+         }
+    }, 300); // Match CSS transition duration (0.25s = 250ms) + buffer
+}
+
 
 // --- Event Listeners ---
 document.addEventListener('DOMContentLoaded', restoreOptions);
 saveButton.addEventListener('click', saveOptions);
 resetMetaPromptButton.addEventListener('click', resetMetaPrompt);
 
-// Optional: Allow saving by pressing Enter in the text input fields (API Key, Model Name)
+// Optional: Allow saving by pressing Enter in text input fields
 [apiKeyInput, modelNameInput].forEach(input => {
     input.addEventListener('keypress', function(event) {
-        // Check if the pressed key is Enter
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent default behavior (like form submission if applicable)
-            saveOptions(); // Trigger the save function
+            event.preventDefault();
+            saveOptions();
+        }
+    });
+});
+
+// Add listener to clear status if user starts typing again
+[apiKeyInput, modelNameInput, metaPromptTextarea].forEach(element => {
+    element.addEventListener('input', () => {
+        // Optionally clear only error/warning messages on input
+        if (statusDiv.classList.contains('error') || statusDiv.classList.contains('warning')) {
+             clearStatus();
         }
     });
 });
